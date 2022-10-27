@@ -3,6 +3,7 @@ package k8sbuilder
 import (
 	"reflect"
 
+	"github.com/imdario/mergo"
 	"github.com/thoas/go-funk"
 	corev1 "k8s.io/api/core/v1"
 )
@@ -60,7 +61,7 @@ func(h *ContainerBuilderDefault) WithContainer(container *corev1.Container, opts
 
 	// Merge
 	if IsMerge(opts) {
-		if err := MergeK8s(h.container, h.container, container); err != nil {
+		if err := mergo.Merge(h.container, container); err != nil {
 			panic(err)
 		}
 		h.WithEnv(container.Env, Merge).

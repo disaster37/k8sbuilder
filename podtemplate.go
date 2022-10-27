@@ -60,7 +60,7 @@ func(h *PodTemplateBuilderDefault) WithPodTemplateSpec(pts *corev1.PodTemplateSp
 
 	// Merge
 	if IsMerge(opts) {
-		if err := MergeK8s(h.podTemplate, h.podTemplate, pts); err != nil {
+		if err := mergo.Merge(h.podTemplate, pts); err != nil {
 			panic(err)
 		}
 		h.WithAffinity(*pts.Spec.Affinity, Merge).
