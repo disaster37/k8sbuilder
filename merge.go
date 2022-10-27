@@ -17,7 +17,7 @@ func MergeK8s(dst any, src, new any) (err error) {
 		return errors.New("dst must be a pointer of instanciated object")
 	}
 
-	if src != nil  ||  (reflect.ValueOf(src).Kind() == reflect.Ptr && reflect.ValueOf(src).IsNil()) {
+	if src == nil  ||  (reflect.ValueOf(src).Kind() == reflect.Ptr && reflect.ValueOf(src).IsNil()) {
     return errors.New("src can't be null")
 	}
 
