@@ -21,6 +21,7 @@ type PodTemplateBuilder interface{
 	WithContainers(containers []corev1.Container, opts ...WithOption) PodTemplateBuilder
 	WithVolumes(volumes []corev1.Volume, opts ...WithOption) PodTemplateBuilder
 	WithAffinity(affinity corev1.Affinity, opts ...WithOption) PodTemplateBuilder
+	WithSecurityContext(sc *corev1.PodSecurityContext, opts ...WithOption) PodTemplateBuilder
 	PodTemplate() *corev1.PodTemplateSpec
 }
 
@@ -337,6 +338,30 @@ func (h *PodTemplateBuilderDefault) WithAffinity(affinity corev1.Affinity, opts 
 	// Merge
 	if IsMerge(opts) {
 		if err := MergeK8s(h.podTemplate.Spec.Affinity, h.podTemplate.Spec.Affinity, affinity); err != nil {
+			panic(err)
+		}
+  }
+	
+	return h
+}
+
+// WithSecurityContext permit to set security context
+func(h *PodTemplateBuilderDefault) WithSecurityContext(sc *corev1.PodSecurityContext, opts ...WithOption) PodTemplateBuilder {
+	// Overwrite
+	if IsOverwrite(opts) || h.podTemplate.Spec.SecurityContext == nil  {
+		h.podTemplate.Spec.SecurityContext = sc
+		return h
+	}
+
+	// Overwrite only if not default
+	if IsOverwriteIfDefaultValue(opts) && reflect.ValueOf(h.podTemplate.Spec.SecurityContext).Elem().IsZero() {
+		h.podTemplate.Spec.SecurityContext = sc
+		return h
+	}
+
+	// Merge
+	if IsMerge(opts) {
+		if err := MergeK8s(h.podTemplate.Spec.SecurityContext, h.podTemplate.Spec.SecurityContext, sc); err != nil {
 			panic(err)
 		}
   }
