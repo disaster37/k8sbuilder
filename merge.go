@@ -17,12 +17,18 @@ func MergeK8s(dst any, src, new any) (err error) {
 		return errors.New("dst must be a pointer of instanciated object")
 	}
 
-	if src == nil  ||  (reflect.ValueOf(src).Kind() == reflect.Ptr && reflect.ValueOf(src).IsNil()) {
+	if src != nil  ||  (reflect.ValueOf(src).Kind() == reflect.Ptr && reflect.ValueOf(src).IsNil()) {
     return errors.New("src can't be null")
 	}
 
 	if new == nil || (reflect.ValueOf(new).Kind() == reflect.Ptr && reflect.ValueOf(new).IsNil()) {
-    return errors.New("new can't be null")
+    var value reflect.Value
+		if reflect.ValueOf(src).Kind() == reflect.Ptr {
+			value = reflect.ValueOf(src).Elem()
+		} else {
+			value = reflect.ValueOf(src)
+		}
+		reflect.ValueOf(src).Elem().Set(value)
 	}
 
 	dstByte, err := json.Marshal(dst)

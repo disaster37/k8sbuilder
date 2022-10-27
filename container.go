@@ -42,6 +42,7 @@ func(h *ContainerBuilderDefault) Container() *corev1.Container {
 
 // WithContainer permit to set existing container
 func(h *ContainerBuilderDefault) WithContainer(container *corev1.Container, opts ...WithOption) ContainerBuilder {
+	
 	if container == nil {
 		return h
 	}
