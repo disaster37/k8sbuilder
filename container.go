@@ -3,7 +3,6 @@ package k8sbuilder
 import (
 	"reflect"
 
-	"github.com/imdario/mergo"
 	"github.com/thoas/go-funk"
 	corev1 "k8s.io/api/core/v1"
 )
@@ -61,19 +60,17 @@ func(h *ContainerBuilderDefault) WithContainer(container *corev1.Container, opts
 
 	// Merge
 	if IsMerge(opts) {
-		if err := mergo.Merge(h.container, container); err != nil {
+		orgContainer := h.container.DeepCopy()
+		if err := MergeK8s(h.container, h.container, container); err != nil {
 			panic(err)
 		}
-		h.WithEnv(container.Env, Merge).
+		h.WithEnv(orgContainer.Env).
+		WithEnv(container.Env, Merge).
+		WithEnvFrom(orgContainer.EnvFrom).
 		WithEnvFrom(container.EnvFrom, Merge).
-		WithImage(container.Image, Merge).
-		WithImagePullPolicy(container.ImagePullPolicy, Merge).
-		WithLivenessProbe(container.LivenessProbe, Merge).
+		WithPort(orgContainer.Ports).
 		WithPort(container.Ports, Merge).
-		WithReadinessProbe(container.ReadinessProbe, Merge).
-		WithResource(&container.Resources, Merge).
-		WithSecurityContext(container.SecurityContext, Merge).
-		WithStartupProbe(container.StartupProbe, Merge).
+		WithVolumeMount(orgContainer.VolumeMounts).
 		WithVolumeMount(container.VolumeMounts, Merge)
 	}
 

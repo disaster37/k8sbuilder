@@ -60,18 +60,21 @@ func(h *PodTemplateBuilderDefault) WithPodTemplateSpec(pts *corev1.PodTemplateSp
 
 	// Merge
 	if IsMerge(opts) {
-		if err := mergo.Merge(h.podTemplate, pts); err != nil {
+		orgPts := h.podTemplate.DeepCopy()
+
+		if err := MergeK8s(h.podTemplate, h.podTemplate, pts); err != nil {
 			panic(err)
 		}
-		h.WithAffinity(*pts.Spec.Affinity, Merge).
-		WithAnnotations(pts.Annotations, Merge).
+		
+		h.WithContainers(orgPts.Spec.Containers).
 		WithContainers(pts.Spec.Containers, Merge).
+		WithImagePullSecrets(orgPts.Spec.ImagePullSecrets).
 		WithImagePullSecrets(pts.Spec.ImagePullSecrets, Merge).
+		WithInitContainers(orgPts.Spec.InitContainers).
 		WithInitContainers(pts.Spec.InitContainers, Merge).
-		WithLabels(pts.Labels, Merge).
-		WithNodeSelector(pts.Spec.NodeSelector, Merge).
-		WithTerminationGracePeriodSeconds(*pts.Spec.TerminationGracePeriodSeconds, Merge).
+		WithTolerations(orgPts.Spec.Tolerations).
 		WithTolerations(pts.Spec.Tolerations, Merge).
+		WithVolumes(orgPts.Spec.Volumes).
 		WithVolumes(pts.Spec.Volumes, Merge)
 	}
 
