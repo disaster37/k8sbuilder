@@ -28,7 +28,7 @@ func MergeK8s(dst any, src, new any) (err error) {
 		} else {
 			value = reflect.ValueOf(src)
 		}
-		reflect.ValueOf(src).Elem().Set(value)
+		reflect.ValueOf(dst).Elem().Set(value)
 	}
 
 	dstByte, err := json.Marshal(dst)
