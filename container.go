@@ -185,6 +185,10 @@ func(h *ContainerBuilderDefault) WithPort(ports []corev1.ContainerPort, opts ...
 
 // WithResource permit to set resources
 func(h *ContainerBuilderDefault) WithResource(resources *corev1.ResourceRequirements, opts ...WithOption) ContainerBuilder {
+	if resources == nil {
+		return h
+	}
+	
 	// Overwrite
 	if IsOverwrite(opts)  {
 		h.container.Resources = *resources
