@@ -1,6 +1,6 @@
 package k8sbuilder
 
-type WithOption string
+
 
 const (
 	Overwrite WithOption = "overwrite"
@@ -8,6 +8,12 @@ const (
 	Merge WithOption = "merge"
 )
 
+type WithOption string
+
+type Operation struct {
+	Name string
+	Args []any
+}
 
 // IsOverwrite permit to know if i should overwrite or not, base on options
 // Default to true
