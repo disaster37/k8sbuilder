@@ -5,11 +5,9 @@ import (
 	"errors"
 	"reflect"
 
+	"github.com/thoas/go-funk"
 	"k8s.io/apimachinery/pkg/util/strategicpatch"
 )
-
-
-
 
 // MergeK8s permit to merge kubernetes resources
 func MergeK8s(dst any, src, new any) (err error) {
@@ -55,4 +53,22 @@ func MergeK8s(dst any, src, new any) (err error) {
 	}
 
 	return nil
+}
+
+
+func MergeSliceOrDie(dst []any, key string,  src ...[]any) {
+	if dst == nil {
+		panic("dst can't be nil")
+	}
+	
+	for _, src :=  range src {
+		loopExpected: for _, expectedItem := range src {
+			for _, currentItem := range dst {
+				if funk.Get(currentItem, key) == funk.Get(expectedItem, key) {
+					continue loopExpected
+				}
+			}
+			dst = append(dst, expectedItem)
+		}
+	}
 }
