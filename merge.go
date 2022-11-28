@@ -56,19 +56,21 @@ func MergeK8s(dst any, src, new any) (err error) {
 }
 
 
-func MergeSliceOrDie(dst []any, key string,  src ...[]any) {
+// MergeSliceOrDie permit to merge some slice on dst
+// It avoid to set the same item based on key value
+func MergeSliceOrDie(dst *[]any, key string,  src ...[]any) {
 	if dst == nil {
 		panic("dst can't be nil")
 	}
 	
 	for _, src :=  range src {
 		loopExpected: for _, expectedItem := range src {
-			for _, currentItem := range dst {
+			for _, currentItem := range *dst {
 				if funk.Get(currentItem, key) == funk.Get(expectedItem, key) {
 					continue loopExpected
 				}
 			}
-			dst = append(dst, expectedItem)
+			*dst = append(*dst, expectedItem)
 		}
 	}
 }
