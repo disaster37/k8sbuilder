@@ -9,7 +9,7 @@ import (
 	"k8s.io/utils/pointer"
 )
 
-type PodTemplateBuilder interface{
+type PodTemplateBuilder interface {
 	WithPodTemplateSpec(pts *corev1.PodTemplateSpec, opts ...WithOption) PodTemplateBuilder
 	WithLabels(labels map[string]string, opts ...WithOption) PodTemplateBuilder
 	WithAnnotations(annotations map[string]string, opts ...WithOption) PodTemplateBuilder
@@ -37,12 +37,12 @@ func NewPodTemplateBuilder() PodTemplateBuilder {
 }
 
 // PodTemplate permit to get current pod template
-func(h *PodTemplateBuilderDefault) PodTemplate() *corev1.PodTemplateSpec {
+func (h *PodTemplateBuilderDefault) PodTemplate() *corev1.PodTemplateSpec {
 	return h.podTemplate
 }
 
 // WithPodTemplateSpec permit to use existing podTemplateSpec
-func(h *PodTemplateBuilderDefault) WithPodTemplateSpec(pts *corev1.PodTemplateSpec, opts ...WithOption) PodTemplateBuilder {
+func (h *PodTemplateBuilderDefault) WithPodTemplateSpec(pts *corev1.PodTemplateSpec, opts ...WithOption) PodTemplateBuilder {
 	if pts == nil {
 		return h
 	}
@@ -66,24 +66,24 @@ func(h *PodTemplateBuilderDefault) WithPodTemplateSpec(pts *corev1.PodTemplateSp
 		if err := MergeK8s(h.podTemplate, h.podTemplate, pts); err != nil {
 			panic(err)
 		}
-		
+
 		h.WithContainers(orgPts.Spec.Containers).
-		WithContainers(pts.Spec.Containers, Merge).
-		WithImagePullSecrets(orgPts.Spec.ImagePullSecrets).
-		WithImagePullSecrets(pts.Spec.ImagePullSecrets, Merge).
-		WithInitContainers(orgPts.Spec.InitContainers).
-		WithInitContainers(pts.Spec.InitContainers, Merge).
-		WithTolerations(orgPts.Spec.Tolerations).
-		WithTolerations(pts.Spec.Tolerations, Merge).
-		WithVolumes(orgPts.Spec.Volumes).
-		WithVolumes(pts.Spec.Volumes, Merge)
+			WithContainers(pts.Spec.Containers, Merge).
+			WithImagePullSecrets(orgPts.Spec.ImagePullSecrets).
+			WithImagePullSecrets(pts.Spec.ImagePullSecrets, Merge).
+			WithInitContainers(orgPts.Spec.InitContainers).
+			WithInitContainers(pts.Spec.InitContainers, Merge).
+			WithTolerations(orgPts.Spec.Tolerations).
+			WithTolerations(pts.Spec.Tolerations, Merge).
+			WithVolumes(orgPts.Spec.Volumes).
+			WithVolumes(pts.Spec.Volumes, Merge)
 	}
 
 	return h
 }
 
 // WithLabels permit to set labels
-func (h * PodTemplateBuilderDefault) WithLabels(labels map[string]string, opts ...WithOption) PodTemplateBuilder {
+func (h *PodTemplateBuilderDefault) WithLabels(labels map[string]string, opts ...WithOption) PodTemplateBuilder {
 	// Overwrite
 	if IsOverwrite(opts) || h.podTemplate.Labels == nil {
 		h.podTemplate.Labels = labels
@@ -98,11 +98,11 @@ func (h * PodTemplateBuilderDefault) WithLabels(labels map[string]string, opts .
 
 	// Merge
 	if IsMerge(opts) && labels != nil {
-		if err := mergo.Merge(h.podTemplate.Labels, labels); err != nil {
+		if err := mergo.Merge(&h.podTemplate.Labels, labels); err != nil {
 			panic(err)
 		}
 	}
-	
+
 	return h
 }
 
@@ -122,11 +122,11 @@ func (h *PodTemplateBuilderDefault) WithAnnotations(annotations map[string]strin
 
 	// Merge
 	if IsMerge(opts) && annotations != nil {
-		if err := mergo.Merge(h.podTemplate.Annotations, annotations); err != nil {
+		if err := mergo.Merge(&h.podTemplate.Annotations, annotations); err != nil {
 			panic(err)
 		}
 	}
-	
+
 	return h
 }
 
@@ -146,15 +146,15 @@ func (h *PodTemplateBuilderDefault) WithImagePullSecrets(ips []corev1.LocalObjec
 
 	// Merge
 	if IsMerge(opts) {
-		for _, ref := range ips  {
+		for _, ref := range ips {
 			if !funk.Contains(h.podTemplate.Spec.ImagePullSecrets, func(o corev1.LocalObjectReference) bool {
 				return ref.Name == o.Name
 			}) {
 				h.podTemplate.Spec.ImagePullSecrets = append(h.podTemplate.Spec.ImagePullSecrets, ref)
 			}
 		}
-  }
-	
+	}
+
 	return h
 }
 
@@ -185,13 +185,13 @@ func (h *PodTemplateBuilderDefault) WithTolerations(tolerations []corev1.Tolerat
 
 	// Merge
 	if IsMerge(opts) {
-		for _, toleration := range tolerations  {
-			if !funk.Contains(h.podTemplate.Spec.Tolerations, toleration){
+		for _, toleration := range tolerations {
+			if !funk.Contains(h.podTemplate.Spec.Tolerations, toleration) {
 				h.podTemplate.Spec.Tolerations = append(h.podTemplate.Spec.Tolerations, toleration)
 			}
 		}
 	}
-	
+
 	return h
 }
 
@@ -211,11 +211,11 @@ func (h *PodTemplateBuilderDefault) WithNodeSelector(nodeSelector map[string]str
 
 	// Merge
 	if IsMerge(opts) && nodeSelector != nil {
-		if err := mergo.Merge(h.podTemplate.Spec.NodeSelector, nodeSelector); err != nil {
+		if err := mergo.Merge(&h.podTemplate.Spec.NodeSelector, nodeSelector); err != nil {
 			panic(err)
 		}
 	}
-	
+
 	return h
 }
 
@@ -235,7 +235,7 @@ func (h *PodTemplateBuilderDefault) WithInitContainers(containers []corev1.Conta
 
 	// Merge
 	if IsMerge(opts) {
-		for _, container := range containers  {
+		for _, container := range containers {
 			index := funk.IndexOf(h.podTemplate.Spec.InitContainers, func(o corev1.Container) bool {
 				return container.Name == o.Name
 			})
@@ -243,14 +243,14 @@ func (h *PodTemplateBuilderDefault) WithInitContainers(containers []corev1.Conta
 				h.podTemplate.Spec.InitContainers = append(h.podTemplate.Spec.InitContainers, container)
 			} else {
 				h.podTemplate.Spec.InitContainers[index] = *NewContainerBuilder().
-				WithContainer(&h.podTemplate.Spec.InitContainers[index]).
-				WithContainer(&container, Merge).
-				Container()
+					WithContainer(&h.podTemplate.Spec.InitContainers[index]).
+					WithContainer(&container, Merge).
+					Container()
 
 			}
 		}
-  }
-	
+	}
+
 	return h
 }
 
@@ -270,7 +270,7 @@ func (h *PodTemplateBuilderDefault) WithContainers(containers []corev1.Container
 
 	// Merge
 	if IsMerge(opts) {
-		for _, container := range containers  {
+		for _, container := range containers {
 			index := funk.IndexOf(h.podTemplate.Spec.InitContainers, func(o corev1.Container) bool {
 				return container.Name == o.Name
 			})
@@ -278,13 +278,13 @@ func (h *PodTemplateBuilderDefault) WithContainers(containers []corev1.Container
 				h.podTemplate.Spec.Containers = append(h.podTemplate.Spec.Containers, container)
 			} else {
 				h.podTemplate.Spec.Containers[index] = *NewContainerBuilder().
-				WithContainer(&h.podTemplate.Spec.Containers[index]).
-				WithContainer(&container, Merge).
-				Container()
+					WithContainer(&h.podTemplate.Spec.Containers[index]).
+					WithContainer(&container, Merge).
+					Container()
 			}
 		}
-  }
-	
+	}
+
 	return h
 }
 
@@ -304,7 +304,7 @@ func (h *PodTemplateBuilderDefault) WithVolumes(volumes []corev1.Volume, opts ..
 
 	// Merge
 	if IsMerge(opts) {
-		for _, volume := range volumes   {
+		for _, volume := range volumes {
 			index := funk.IndexOf(h.podTemplate.Spec.Volumes, func(o corev1.Volume) bool {
 				return volume.Name == o.Name
 			})
@@ -316,8 +316,8 @@ func (h *PodTemplateBuilderDefault) WithVolumes(volumes []corev1.Volume, opts ..
 				}
 			}
 		}
-  }
-	
+	}
+
 	return h
 }
 
@@ -340,15 +340,15 @@ func (h *PodTemplateBuilderDefault) WithAffinity(affinity corev1.Affinity, opts 
 		if err := MergeK8s(h.podTemplate.Spec.Affinity, h.podTemplate.Spec.Affinity, affinity); err != nil {
 			panic(err)
 		}
-  }
-	
+	}
+
 	return h
 }
 
 // WithSecurityContext permit to set security context
-func(h *PodTemplateBuilderDefault) WithSecurityContext(sc *corev1.PodSecurityContext, opts ...WithOption) PodTemplateBuilder {
+func (h *PodTemplateBuilderDefault) WithSecurityContext(sc *corev1.PodSecurityContext, opts ...WithOption) PodTemplateBuilder {
 	// Overwrite
-	if IsOverwrite(opts) || h.podTemplate.Spec.SecurityContext == nil  {
+	if IsOverwrite(opts) || h.podTemplate.Spec.SecurityContext == nil {
 		h.podTemplate.Spec.SecurityContext = sc
 		return h
 	}
@@ -364,7 +364,7 @@ func(h *PodTemplateBuilderDefault) WithSecurityContext(sc *corev1.PodSecurityCon
 		if err := MergeK8s(h.podTemplate.Spec.SecurityContext, h.podTemplate.Spec.SecurityContext, sc); err != nil {
 			panic(err)
 		}
-  }
-	
+	}
+
 	return h
 }
