@@ -132,21 +132,26 @@ func (h *PodTemplateBuilderDefault) WithAnnotations(annotations map[string]strin
 
 // WithImagePullSecrets permit to set ImagePullSecret
 func (h *PodTemplateBuilderDefault) WithImagePullSecrets(ips []corev1.LocalObjectReference, opts ...WithOption) PodTemplateBuilder {
+
+	// Avoid overwrite ips
+	tmpIps := make([]corev1.LocalObjectReference, len(ips))
+	copy(tmpIps, ips)
+
 	// Overwrite
 	if IsOverwrite(opts) || h.podTemplate.Spec.ImagePullSecrets == nil {
-		h.podTemplate.Spec.ImagePullSecrets = ips
+		h.podTemplate.Spec.ImagePullSecrets = tmpIps
 		return h
 	}
 
 	// Overwrite only if not default
 	if IsOverwriteIfDefaultValue(opts) && reflect.ValueOf(h.podTemplate.Spec.ImagePullSecrets).Elem().IsZero() {
-		h.podTemplate.Spec.ImagePullSecrets = ips
+		h.podTemplate.Spec.ImagePullSecrets = tmpIps
 		return h
 	}
 
 	// Merge
 	if IsMerge(opts) {
-		for _, ref := range ips {
+		for _, ref := range tmpIps {
 			if !funk.Contains(h.podTemplate.Spec.ImagePullSecrets, func(o corev1.LocalObjectReference) bool {
 				return ref.Name == o.Name
 			}) {
@@ -171,21 +176,26 @@ func (h *PodTemplateBuilderDefault) WithTerminationGracePeriodSeconds(nb int64, 
 
 // WithTolerations permit to set tolerations
 func (h *PodTemplateBuilderDefault) WithTolerations(tolerations []corev1.Toleration, opts ...WithOption) PodTemplateBuilder {
+
+	// To avoid to overwrite tolerations
+	tmpTolerations := make([]corev1.Toleration, len(tolerations))
+	copy(tmpTolerations, tolerations)
+
 	// Overwrite
 	if IsOverwrite(opts) || h.podTemplate.Spec.Tolerations == nil {
-		h.podTemplate.Spec.Tolerations = tolerations
+		h.podTemplate.Spec.Tolerations = tmpTolerations
 		return h
 	}
 
 	// Overwrite only if not default
 	if IsOverwriteIfDefaultValue(opts) && reflect.ValueOf(h.podTemplate.Spec.Tolerations).Elem().IsZero() {
-		h.podTemplate.Spec.Tolerations = tolerations
+		h.podTemplate.Spec.Tolerations = tmpTolerations
 		return h
 	}
 
 	// Merge
 	if IsMerge(opts) {
-		for _, toleration := range tolerations {
+		for _, toleration := range tmpTolerations {
 			if !funk.Contains(h.podTemplate.Spec.Tolerations, toleration) {
 				h.podTemplate.Spec.Tolerations = append(h.podTemplate.Spec.Tolerations, toleration)
 			}
@@ -221,21 +231,26 @@ func (h *PodTemplateBuilderDefault) WithNodeSelector(nodeSelector map[string]str
 
 // WithInitContainers permit to set init containers
 func (h *PodTemplateBuilderDefault) WithInitContainers(containers []corev1.Container, opts ...WithOption) PodTemplateBuilder {
+
+	// To avoid overwrite
+	tmpContainers := make([]corev1.Container, len(containers))
+	copy(tmpContainers, containers)
+
 	// Overwrite
 	if IsOverwrite(opts) || h.podTemplate.Spec.InitContainers == nil {
-		h.podTemplate.Spec.InitContainers = containers
+		h.podTemplate.Spec.InitContainers = tmpContainers
 		return h
 	}
 
 	// Overwrite only if not default
 	if IsOverwriteIfDefaultValue(opts) && reflect.ValueOf(h.podTemplate.Spec.InitContainers).Elem().IsZero() {
-		h.podTemplate.Spec.InitContainers = containers
+		h.podTemplate.Spec.InitContainers = tmpContainers
 		return h
 	}
 
 	// Merge
 	if IsMerge(opts) {
-		for _, container := range containers {
+		for _, container := range tmpContainers {
 			index := funk.IndexOf(h.podTemplate.Spec.InitContainers, func(o corev1.Container) bool {
 				return container.Name == o.Name
 			})
@@ -256,21 +271,26 @@ func (h *PodTemplateBuilderDefault) WithInitContainers(containers []corev1.Conta
 
 // WithContainers permit to set containers
 func (h *PodTemplateBuilderDefault) WithContainers(containers []corev1.Container, opts ...WithOption) PodTemplateBuilder {
+
+	// To avoid overwrite
+	tmpContainers := make([]corev1.Container, len(containers))
+	copy(tmpContainers, containers)
+
 	// Overwrite
 	if IsOverwrite(opts) || h.podTemplate.Spec.Containers == nil {
-		h.podTemplate.Spec.Containers = containers
+		h.podTemplate.Spec.Containers = tmpContainers
 		return h
 	}
 
 	// Overwrite only if not default
 	if IsOverwriteIfDefaultValue(opts) && reflect.ValueOf(h.podTemplate.Spec.Containers).Elem().IsZero() {
-		h.podTemplate.Spec.Containers = containers
+		h.podTemplate.Spec.Containers = tmpContainers
 		return h
 	}
 
 	// Merge
 	if IsMerge(opts) {
-		for _, container := range containers {
+		for _, container := range tmpContainers {
 			index := funk.IndexOf(h.podTemplate.Spec.InitContainers, func(o corev1.Container) bool {
 				return container.Name == o.Name
 			})
@@ -290,21 +310,26 @@ func (h *PodTemplateBuilderDefault) WithContainers(containers []corev1.Container
 
 // WithContainers permit to set containers
 func (h *PodTemplateBuilderDefault) WithVolumes(volumes []corev1.Volume, opts ...WithOption) PodTemplateBuilder {
+
+	// To avoid to overwrite volumes
+	tmpVolumes := make([]corev1.Volume, len(volumes))
+	copy(tmpVolumes, volumes)
+
 	// Overwrite
 	if IsOverwrite(opts) || h.podTemplate.Spec.Volumes == nil {
-		h.podTemplate.Spec.Volumes = volumes
+		h.podTemplate.Spec.Volumes = tmpVolumes
 		return h
 	}
 
 	// Overwrite only if not default
 	if IsOverwriteIfDefaultValue(opts) && reflect.ValueOf(h.podTemplate.Spec.Volumes).Elem().IsZero() {
-		h.podTemplate.Spec.Volumes = volumes
+		h.podTemplate.Spec.Volumes = tmpVolumes
 		return h
 	}
 
 	// Merge
 	if IsMerge(opts) {
-		for _, volume := range volumes {
+		for _, volume := range tmpVolumes {
 			index := funk.IndexOf(h.podTemplate.Spec.Volumes, func(o corev1.Volume) bool {
 				return volume.Name == o.Name
 			})
