@@ -80,9 +80,13 @@ func (h *ContainerBuilderDefault) WithContainer(container *corev1.Container, opt
 // WithEnvFrom permit to set envFrom
 func (h *ContainerBuilderDefault) WithEnvFrom(envFroms []corev1.EnvFromSource, opts ...WithOption) ContainerBuilder {
 
+	var tmpEnvFrom []corev1.EnvFromSource
+
 	// Copy to avoid overwrite envFroms
-	tmpEnvFrom := make([]corev1.EnvFromSource, len(envFroms))
-	copy(tmpEnvFrom, envFroms)
+	if envFroms != nil {
+		tmpEnvFrom = make([]corev1.EnvFromSource, len(envFroms))
+		copy(tmpEnvFrom, envFroms)
+	}
 
 	// Overwrite
 	if IsOverwrite(opts) || h.container.EnvFrom == nil {
@@ -111,9 +115,13 @@ func (h *ContainerBuilderDefault) WithEnvFrom(envFroms []corev1.EnvFromSource, o
 // WithEnv permit to set env
 func (h *ContainerBuilderDefault) WithEnv(envs []corev1.EnvVar, opts ...WithOption) ContainerBuilder {
 
+	var tmpEnvs []corev1.EnvVar
+
 	// Copy to avoid overwrite envFroms
-	tmpEnvs := make([]corev1.EnvVar, len(envs))
-	copy(tmpEnvs, envs)
+	if envs != nil {
+		tmpEnvs = make([]corev1.EnvVar, len(envs))
+		copy(tmpEnvs, envs)
+	}
 
 	// Overwrite
 	if IsOverwrite(opts) || h.container.Env == nil {
@@ -163,9 +171,13 @@ func (h *ContainerBuilderDefault) WithImagePullPolicy(pullPolicy corev1.PullPoli
 
 func (h *ContainerBuilderDefault) WithPort(ports []corev1.ContainerPort, opts ...WithOption) ContainerBuilder {
 
+	var tmpPorts []corev1.ContainerPort
+
 	// Copy to avoid overwrite ports
-	tmpPorts := make([]corev1.ContainerPort, len(ports))
-	copy(tmpPorts, ports)
+	if ports != nil {
+		tmpPorts = make([]corev1.ContainerPort, len(ports))
+		copy(tmpPorts, ports)
+	}
 
 	// Overwrite
 	if IsOverwrite(opts) || h.container.Ports == nil {
@@ -252,9 +264,13 @@ func (h *ContainerBuilderDefault) WithSecurityContext(sc *corev1.SecurityContext
 // WithVolumeMount permit to set volume mounts
 func (h *ContainerBuilderDefault) WithVolumeMount(volumeMounts []corev1.VolumeMount, opts ...WithOption) ContainerBuilder {
 
+	var tmpVolumeMount []corev1.VolumeMount
+
 	// Copy to avoid overwrite volumeMounts
-	tmpVolumeMount := make([]corev1.VolumeMount, len(volumeMounts))
-	copy(tmpVolumeMount, volumeMounts)
+	if volumeMounts != nil {
+		tmpVolumeMount = make([]corev1.VolumeMount, len(volumeMounts))
+		copy(tmpVolumeMount, volumeMounts)
+	}
 
 	// Overwrite
 	if IsOverwrite(opts) || h.container.VolumeMounts == nil {

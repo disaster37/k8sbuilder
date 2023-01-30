@@ -133,9 +133,13 @@ func (h *PodTemplateBuilderDefault) WithAnnotations(annotations map[string]strin
 // WithImagePullSecrets permit to set ImagePullSecret
 func (h *PodTemplateBuilderDefault) WithImagePullSecrets(ips []corev1.LocalObjectReference, opts ...WithOption) PodTemplateBuilder {
 
+	var tmpIps []corev1.LocalObjectReference
+
 	// Avoid overwrite ips
-	tmpIps := make([]corev1.LocalObjectReference, len(ips))
-	copy(tmpIps, ips)
+	if ips != nil {
+		tmpIps := make([]corev1.LocalObjectReference, len(ips))
+		copy(tmpIps, ips)
+	}
 
 	// Overwrite
 	if IsOverwrite(opts) || h.podTemplate.Spec.ImagePullSecrets == nil {
@@ -177,9 +181,13 @@ func (h *PodTemplateBuilderDefault) WithTerminationGracePeriodSeconds(nb int64, 
 // WithTolerations permit to set tolerations
 func (h *PodTemplateBuilderDefault) WithTolerations(tolerations []corev1.Toleration, opts ...WithOption) PodTemplateBuilder {
 
+	var tmpTolerations []corev1.Toleration
+
 	// To avoid to overwrite tolerations
-	tmpTolerations := make([]corev1.Toleration, len(tolerations))
-	copy(tmpTolerations, tolerations)
+	if tolerations != nil {
+		tmpTolerations = make([]corev1.Toleration, len(tolerations))
+		copy(tmpTolerations, tolerations)
+	}
 
 	// Overwrite
 	if IsOverwrite(opts) || h.podTemplate.Spec.Tolerations == nil {
@@ -232,9 +240,13 @@ func (h *PodTemplateBuilderDefault) WithNodeSelector(nodeSelector map[string]str
 // WithInitContainers permit to set init containers
 func (h *PodTemplateBuilderDefault) WithInitContainers(containers []corev1.Container, opts ...WithOption) PodTemplateBuilder {
 
+	var tmpContainers []corev1.Container
+
 	// To avoid overwrite
-	tmpContainers := make([]corev1.Container, len(containers))
-	copy(tmpContainers, containers)
+	if containers != nil {
+		tmpContainers = make([]corev1.Container, len(containers))
+		copy(tmpContainers, containers)
+	}
 
 	// Overwrite
 	if IsOverwrite(opts) || h.podTemplate.Spec.InitContainers == nil {
@@ -272,9 +284,13 @@ func (h *PodTemplateBuilderDefault) WithInitContainers(containers []corev1.Conta
 // WithContainers permit to set containers
 func (h *PodTemplateBuilderDefault) WithContainers(containers []corev1.Container, opts ...WithOption) PodTemplateBuilder {
 
+	var tmpContainers []corev1.Container
+
 	// To avoid overwrite
-	tmpContainers := make([]corev1.Container, len(containers))
-	copy(tmpContainers, containers)
+	if containers != nil {
+		tmpContainers = make([]corev1.Container, len(containers))
+		copy(tmpContainers, containers)
+	}
 
 	// Overwrite
 	if IsOverwrite(opts) || h.podTemplate.Spec.Containers == nil {
@@ -311,9 +327,13 @@ func (h *PodTemplateBuilderDefault) WithContainers(containers []corev1.Container
 // WithContainers permit to set containers
 func (h *PodTemplateBuilderDefault) WithVolumes(volumes []corev1.Volume, opts ...WithOption) PodTemplateBuilder {
 
+	var tmpVolumes []corev1.Volume
+
 	// To avoid to overwrite volumes
-	tmpVolumes := make([]corev1.Volume, len(volumes))
-	copy(tmpVolumes, volumes)
+	if volumes != nil {
+		tmpVolumes = make([]corev1.Volume, len(volumes))
+		copy(tmpVolumes, volumes)
+	}
 
 	// Overwrite
 	if IsOverwrite(opts) || h.podTemplate.Spec.Volumes == nil {
